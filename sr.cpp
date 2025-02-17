@@ -23,6 +23,16 @@ struct Student {
     int Depression;
 };
 
+struct IdIndex {
+    int OriginalIndex;
+    int Id;
+};
+
+struct AgeIndex {
+    int OriginalIndex;
+    int Age;
+};
+
 int integerInput(string msg) {
     bool isCorrect = false;
     int result;
@@ -282,46 +292,42 @@ bool readStudentsFromFile(const string& filename, Student** students, int& stude
     return true;
 }
 
-void indexedSortById(Student* students, int* indexesPtr, int length, bool isAscending) {
-    // по возрастанию
+void indexedSortById(IdIndex* idIndexesPtr, int length, bool isAscending) {
     if (isAscending) {
+        // Сортировка по возрастанию
         for (int i = 1; i < length; i++) {
-            int keyIndex = indexesPtr[i];
-            Student keyStudent = students[keyIndex];
+            IdIndex key = idIndexesPtr[i];
             int j = i - 1;
 
-            // Сдвигаем элементы вправо, если они больше текущего "ключа"
-            while (j >= 0 && students[indexesPtr[j]].Id > keyStudent.Id) {
-                indexesPtr[j + 1] = indexesPtr[j];
+            while (j >= 0 && idIndexesPtr[j].Id > key.Id) {
+                idIndexesPtr[j + 1] = idIndexesPtr[j];
                 j--;
             }
 
-            // Вставляем текущий элемент в правильную позицию
-            indexesPtr[j + 1] = keyIndex;
+            idIndexesPtr[j + 1] = key;
         }
         cout << "Массив отсортирован по возрастанию" << endl;
     }
     else {
         // Сортировка по убыванию
         for (int i = 1; i < length; i++) {
-            int keyIndex = indexesPtr[i];
-            Student keyStudent = students[keyIndex];
+            IdIndex key = idIndexesPtr[i];
             int j = i - 1;
 
-            while (j >= 0 && students[indexesPtr[j]].Id < keyStudent.Id) {
-                indexesPtr[j + 1] = indexesPtr[j];
+            while (j >= 0 && idIndexesPtr[j].Id < key.Id) {
+                idIndexesPtr[j + 1] = idIndexesPtr[j];
                 j--;
             }
 
-            indexesPtr[j + 1] = keyIndex;
+            idIndexesPtr[j + 1] = key;
         }
         cout << "Массив отсортирован по убыванию" << endl;
     }
 }
 
-void printAllStudentByIndexes(Student* students, int* indexesPtr, int length) {
+void printAllStudentByIdIndexes(Student* students, IdIndex* indexesPtr, int length) {
     for (int i = 0; i < length; i++) {
-        int index = indexesPtr[i]; // Получение индекса из массива индексов
+        int index = indexesPtr[i].OriginalIndex; // Получение индекса из массива индексов
         printStudent(students[index], index);
     }
 }
@@ -354,23 +360,24 @@ int main()
             studentsPtr = new Student[maxStudents];
             readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
 
-            int* indexesPtr = new int[length]; // индексы, которые мы будем сортировать
+            IdIndex* idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать
             for (int i = 0; i < length; i++) {
-                indexesPtr[i] = i;
+                idIndexesPtr[i].OriginalIndex = i;
+                idIndexesPtr[i].Id = studentsPtr[i].Id;
             }
-
+            
             while (answer != 0) {
                 answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести отсортированный массив\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
-                        indexedSortById(studentsPtr, indexesPtr, length, true);
+                        indexedSortById(idIndexesPtr, length, true);
                         break;
                     case 2:
-                        indexedSortById(studentsPtr, indexesPtr, length, false);
+                        indexedSortById(idIndexesPtr, length, false);
                         break;
                     case 3:
-                        printAllStudentByIndexes(studentsPtr, indexesPtr, length);
+                        printAllStudentByIdIndexes(studentsPtr, idIndexesPtr, length);
                         break;
                 }
             }
