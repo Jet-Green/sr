@@ -299,6 +299,7 @@ void indexedSortById(Student* students, int* indexesPtr, int length, bool isAsce
             // Вставляем текущий элемент в правильную позицию
             indexesPtr[j + 1] = keyIndex;
         }
+        cout << "Массив отсортирован по возрастанию" << endl;
     }
     else {
         // Сортировка по убыванию
@@ -314,6 +315,7 @@ void indexedSortById(Student* students, int* indexesPtr, int length, bool isAsce
 
             indexesPtr[j + 1] = keyIndex;
         }
+        cout << "Массив отсортирован по убыванию" << endl;
     }
 }
 
@@ -357,10 +359,21 @@ int main()
                 indexesPtr[i] = i;
             }
 
-            indexedSortById(studentsPtr, indexesPtr, length, true);
+            while (answer != 0) {
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести отсортированный массив\n0. Выход\n");
 
-            printAllStudentByIndexes(studentsPtr, indexesPtr, length);
-
+                switch (answer) {
+                    case 1:
+                        indexedSortById(studentsPtr, indexesPtr, length, true);
+                        break;
+                    case 2:
+                        indexedSortById(studentsPtr, indexesPtr, length, false);
+                        break;
+                    case 3:
+                        printAllStudentByIndexes(studentsPtr, indexesPtr, length);
+                        break;
+                }
+            }
             break;
     }
 
