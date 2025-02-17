@@ -306,7 +306,7 @@ void indexedSortById(IdIndex* idIndexesPtr, int length, bool isAscending) {
 
             idIndexesPtr[j + 1] = key;
         }
-        cout << "Массив отсортирован по возрастанию" << endl;
+        cout << "Массив отсортирован по возрастанию Id" << endl;
     }
     else {
         // Сортировка по убыванию
@@ -321,11 +321,51 @@ void indexedSortById(IdIndex* idIndexesPtr, int length, bool isAscending) {
 
             idIndexesPtr[j + 1] = key;
         }
-        cout << "Массив отсортирован по убыванию" << endl;
+        cout << "Массив отсортирован по убыванию Id" << endl;
     }
 }
 
 void printAllStudentByIdIndexes(Student* students, IdIndex* indexesPtr, int length) {
+    for (int i = 0; i < length; i++) {
+        int index = indexesPtr[i].OriginalIndex; // Получение индекса из массива индексов
+        printStudent(students[index], index);
+    }
+}
+
+void indexedSortByAge(AgeIndex* ageIndexesPtr, int length, bool isAscending) {
+    if (isAscending) {
+        // Сортировка по возрастанию
+        for (int i = 1; i < length; i++) {
+            AgeIndex key = ageIndexesPtr[i];
+            int j = i - 1;
+
+            while (j >= 0 && ageIndexesPtr[j].Age > key.Age) {
+                ageIndexesPtr[j + 1] = ageIndexesPtr[j];
+                j--;
+            }
+
+            ageIndexesPtr[j + 1] = key;
+        }
+        cout << "Массив отсортирован по возрастанию Age" << endl;
+    }
+    else {
+        // Сортировка по убыванию
+        for (int i = 1; i < length; i++) {
+            AgeIndex key = ageIndexesPtr[i];
+            int j = i - 1;
+
+            while (j >= 0 && ageIndexesPtr[j].Age < key.Age) {
+                ageIndexesPtr[j + 1] = ageIndexesPtr[j];
+                j--;
+            }
+
+            ageIndexesPtr[j + 1] = key;
+        }
+        cout << "Массив отсортирован по убыванию Age" << endl;
+    }
+}
+
+void printAllStudentByAgeIndexes(Student* students, AgeIndex* indexesPtr, int length) {
     for (int i = 0; i < length; i++) {
         int index = indexesPtr[i].OriginalIndex; // Получение индекса из массива индексов
         printStudent(students[index], index);
@@ -360,14 +400,20 @@ int main()
             studentsPtr = new Student[maxStudents];
             readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
 
-            IdIndex* idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать
+            IdIndex* idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать по Id
             for (int i = 0; i < length; i++) {
                 idIndexesPtr[i].OriginalIndex = i;
                 idIndexesPtr[i].Id = studentsPtr[i].Id;
             }
+
+            AgeIndex* ageIndexesPtr = new AgeIndex[length]; // индексы, которые мы будем сортировать по Age
+            for (int i = 0; i < length; i++) {
+                ageIndexesPtr[i].OriginalIndex = i;
+                ageIndexesPtr[i].Age = studentsPtr[i].Age;
+            }
             
             while (answer != 0) {
-                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести отсортированный массив\n0. Выход\n");
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
@@ -378,6 +424,15 @@ int main()
                         break;
                     case 3:
                         printAllStudentByIdIndexes(studentsPtr, idIndexesPtr, length);
+                        break;
+                    case 4:
+                        indexedSortByAge(ageIndexesPtr, length, true);
+                        break;
+                    case 5:
+                        indexedSortByAge(ageIndexesPtr, length, false);
+                        break;
+                    case 6:
+                        printAllStudentByAgeIndexes(studentsPtr, ageIndexesPtr, length);
                         break;
                 }
             }
