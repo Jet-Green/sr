@@ -394,6 +394,25 @@ bool binarySearchByIdAscending(IdIndex* idIndexesPtr, int length, int targetId, 
     return false;
 }
 
+// Рекурсивный бинарный поиск по Age в массиве, отсортированном по возрастанию
+bool binarySearchByAgeAscendingRecursive(AgeIndex* ageIndexesPtr, int low, int high, int targetAge, AgeIndex& result) {
+    if (low > high) {
+        return false;
+    }
+
+    int mid = low + (high - low) / 2;
+    if (ageIndexesPtr[mid].Age == targetAge) {
+        result = ageIndexesPtr[mid];
+        return true;
+    }
+    else if (ageIndexesPtr[mid].Age < targetAge) {
+        return binarySearchByAgeAscendingRecursive(ageIndexesPtr, mid + 1, high, targetAge, result);
+    }
+    else {
+        return binarySearchByAgeAscendingRecursive(ageIndexesPtr, low, mid - 1, targetAge, result);
+    }
+}
+
 int main()
 {
     // кодировка
@@ -402,6 +421,12 @@ int main()
 
     Student* studentsPtr = nullptr;
     int length = 0;
+
+    bool isIdFound = false;
+    int targetId;
+
+    bool isAgeFound = false;
+    int targetAge;
 
     int answer = 0;
 
@@ -437,7 +462,7 @@ int main()
             }
             
             while (answer != 0) {
-                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n0. Выход\n");
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
@@ -467,17 +492,34 @@ int main()
                         }
                         IdIndex searchResult;
 
-                        int targetId = integerInput("Введите Id, по которому нужно найти студента: ");
-                        bool isFound = binarySearchByIdAscending(idIndexesPtr, length, targetId, searchResult);
+                        targetId = integerInput("Введите Id, по которому нужно найти студента: ");
+                        isIdFound = binarySearchByIdAscending(idIndexesPtr, length, targetId, searchResult);
 
-                        if (isFound) {
+                        if (isIdFound) {
                             cout << "Результат поиска: " << endl;
                             printStudent(studentsPtr[searchResult.OriginalIndex], searchResult.OriginalIndex);
                         }
                         else {
                             cout << "Студент с Id: " << targetId << " не найден" << endl;
                         }
+                        break;
+                    case 8:
+                        if (!areAgeIndexesSorted) {
+                            cout << "Массив, индексированный по Age, не отсортирован по возрастанию!" << endl << endl;
+                            break;
+                        }
+                        AgeIndex ageSearchResult;
 
+                        targetAge = integerInput("Введите Age, по которому нужно найти студента: ");
+                        isAgeFound = binarySearchByAgeAscendingRecursive(ageIndexesPtr, 0, length - 1, targetAge, ageSearchResult);
+
+                        if (isAgeFound) {
+                            cout << "Результат поиска: " << endl;
+                            printStudent(studentsPtr[ageSearchResult.OriginalIndex], ageSearchResult.OriginalIndex);
+                        }
+                        else {
+                            cout << "Студент с Age: " << targetAge << " не найден" << endl;
+                        }
                         break;
                 }
             }
