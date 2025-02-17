@@ -372,6 +372,28 @@ void printAllStudentByAgeIndexes(Student* students, AgeIndex* indexesPtr, int le
     }
 }
 
+// Бинарный поиск по Id в массиве, отсортированном по возрастанию, итеративный вариант
+bool binarySearchByIdAscending(IdIndex* idIndexesPtr, int length, int targetId, IdIndex& result) {
+    int low = 0;
+    int high = length - 1;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (idIndexesPtr[mid].Id == targetId) {
+            result = idIndexesPtr[mid];
+            return true;
+        }
+        else if (idIndexesPtr[mid].Id < targetId) {
+            low = mid + 1;
+        }
+        else {
+            high = mid - 1;
+        }
+    }
+
+    return false;
+}
+
 int main()
 {
     // кодировка
@@ -401,23 +423,26 @@ int main()
             readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
 
             IdIndex* idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать по Id
+            bool areIdIndexesSorted = false;
             for (int i = 0; i < length; i++) {
                 idIndexesPtr[i].OriginalIndex = i;
                 idIndexesPtr[i].Id = studentsPtr[i].Id;
             }
 
             AgeIndex* ageIndexesPtr = new AgeIndex[length]; // индексы, которые мы будем сортировать по Age
+            bool areAgeIndexesSorted = false;
             for (int i = 0; i < length; i++) {
                 ageIndexesPtr[i].OriginalIndex = i;
                 ageIndexesPtr[i].Age = studentsPtr[i].Age;
             }
             
             while (answer != 0) {
-                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n0. Выход\n");
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
                         indexedSortById(idIndexesPtr, length, true);
+                        areIdIndexesSorted = true;
                         break;
                     case 2:
                         indexedSortById(idIndexesPtr, length, false);
@@ -427,12 +452,32 @@ int main()
                         break;
                     case 4:
                         indexedSortByAge(ageIndexesPtr, length, true);
+                        areAgeIndexesSorted = true;
                         break;
                     case 5:
                         indexedSortByAge(ageIndexesPtr, length, false);
                         break;
                     case 6:
                         printAllStudentByAgeIndexes(studentsPtr, ageIndexesPtr, length);
+                        break;
+                    case 7:
+                        if (!areIdIndexesSorted) {
+                            cout << "Массив, индексированный по Id, не отсортирован по возрастанию!" << endl << endl;
+                            break;
+                        }
+                        IdIndex searchResult;
+
+                        int targetId = integerInput("Введите Id, по которому нужно найти студента: ");
+                        bool isFound = binarySearchByIdAscending(idIndexesPtr, length, targetId, searchResult);
+
+                        if (isFound) {
+                            cout << "Результат поиска: " << endl;
+                            printStudent(studentsPtr[searchResult.OriginalIndex], searchResult.OriginalIndex);
+                        }
+                        else {
+                            cout << "Студент с Id: " << targetId << " не найден" << endl;
+                        }
+
                         break;
                 }
             }
