@@ -181,7 +181,7 @@ void studentsMainInput(Student** ptr, int length) {
 }
 
 void printStudent(const Student& student, int index) {
-    std::cout << "\nСтудент #" << (index + 1) << ":\n"
+    cout << "\nСтудент #" << (index + 1) << ":\n"
         << "ИД: " << student.Id << "\n"
         << "Пол: " << student.Sex << "\n"
         << "Возраст: " << student.Age << "\n"
@@ -413,6 +413,60 @@ bool binarySearchByAgeAscendingRecursive(AgeIndex* ageIndexesPtr, int low, int h
     }
 }
 
+bool findStudentByAge(Student* studentsPtr, AgeIndex& ageSearchResult, AgeIndex* ageIndexesPtr, int length)
+{
+    int targetAge = integerInput("Введите Age, по которому нужно найти студента: ");
+    bool isAgeFound = binarySearchByAgeAscendingRecursive(ageIndexesPtr, 0, length - 1, targetAge, ageSearchResult);
+
+    if (isAgeFound) {
+        cout << "Результат поиска: " << endl;
+        printStudent(studentsPtr[ageSearchResult.OriginalIndex], ageSearchResult.OriginalIndex);
+    }
+    else {
+        cout << "Студент с Age: " << targetAge << " не найден" << endl;
+    }
+
+    return isAgeFound;
+}
+
+bool findStudentById(Student* studentsPtr, IdIndex& searchResult, IdIndex* idIndexesPtr, int length)
+{
+    int targetId = integerInput("Введите Id, по которому нужно найти студента: ");
+    bool isIdFound = binarySearchByIdAscending(idIndexesPtr, length, targetId, searchResult);
+
+    if (isIdFound) {
+        cout << "Результат поиска: " << endl;
+        printStudent(studentsPtr[searchResult.OriginalIndex], searchResult.OriginalIndex);
+    }
+    else {
+        cout << "Студент с Id " << targetId << " не найден" << endl;
+    }
+
+    return isIdFound;
+}
+
+void editStudentById(Student* studentsPtr, IdIndex* idIndexesPtr, int length) {
+    IdIndex searchResult;
+    bool isFound = findStudentById(studentsPtr, searchResult, idIndexesPtr, length);
+
+    if (isFound)
+    {
+        int targetId = integerInput("Введите, на какое Id заменить: ");
+
+        for (int i = 0; i < length; i++) {
+            if (searchResult.Id == idIndexesPtr[i].Id)
+            {
+                idIndexesPtr[i].Id = targetId;
+                studentsPtr[searchResult.OriginalIndex].Id = targetId;
+
+                cout << "Студент успешно отредактирован, результат: " << endl;
+                printStudent(studentsPtr[searchResult.OriginalIndex], searchResult.OriginalIndex);
+                return;
+            }
+        }
+    }
+}
+
 int main()
 {
     // кодировка
@@ -422,11 +476,8 @@ int main()
     Student* studentsPtr = nullptr;
     int length = 0;
 
-    bool isIdFound = false;
-    int targetId;
-
-    bool isAgeFound = false;
-    int targetAge;
+    IdIndex idSearchResult;
+    AgeIndex ageSearchResult;
 
     int answer = 0;
 
@@ -462,7 +513,7 @@ int main()
             }
             
             while (answer != 0) {
-                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n0. Выход\n");
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n\n9. Найти по Id и отредактировать\n10. Найти по Age и отредактировать\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
@@ -490,36 +541,23 @@ int main()
                             cout << "Массив, индексированный по Id, не отсортирован по возрастанию!" << endl << endl;
                             break;
                         }
-                        IdIndex searchResult;
-
-                        targetId = integerInput("Введите Id, по которому нужно найти студента: ");
-                        isIdFound = binarySearchByIdAscending(idIndexesPtr, length, targetId, searchResult);
-
-                        if (isIdFound) {
-                            cout << "Результат поиска: " << endl;
-                            printStudent(studentsPtr[searchResult.OriginalIndex], searchResult.OriginalIndex);
-                        }
-                        else {
-                            cout << "Студент с Id: " << targetId << " не найден" << endl;
-                        }
+                        findStudentById(studentsPtr, idSearchResult, idIndexesPtr, length);
+                        
                         break;
                     case 8:
                         if (!areAgeIndexesSorted) {
                             cout << "Массив, индексированный по Age, не отсортирован по возрастанию!" << endl << endl;
                             break;
                         }
-                        AgeIndex ageSearchResult;
-
-                        targetAge = integerInput("Введите Age, по которому нужно найти студента: ");
-                        isAgeFound = binarySearchByAgeAscendingRecursive(ageIndexesPtr, 0, length - 1, targetAge, ageSearchResult);
-
-                        if (isAgeFound) {
-                            cout << "Результат поиска: " << endl;
-                            printStudent(studentsPtr[ageSearchResult.OriginalIndex], ageSearchResult.OriginalIndex);
+                        findStudentByAge(studentsPtr, ageSearchResult, ageIndexesPtr, length);
+                        break;
+                    case 9:
+                        if (!areIdIndexesSorted) {
+                            cout << "Массив, индексированный по Id, не отсортирован по возрастанию!" << endl << endl;
+                            break;
                         }
-                        else {
-                            cout << "Студент с Age: " << targetAge << " не найден" << endl;
-                        }
+                        editStudentById(studentsPtr, idIndexesPtr, length);
+                        areIdIndexesSorted = false;
                         break;
                 }
             }
