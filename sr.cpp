@@ -33,6 +33,46 @@ struct AgeIndex {
     int Age;
 };
 
+// Узел бинарного дерева для индексации по Id
+struct TreeNode {
+    int id;               // Ключевой атрибут (Id)
+    int originalIndex;    // Индекс записи в массиве
+    TreeNode* left;       // Указатель на левого потомка
+    TreeNode* right;      // Указатель на правого потомка
+
+    TreeNode(int k, int i) : id(k), originalIndex(i), left(nullptr), right(nullptr) {}
+};
+
+// Добавление узла в бинарное дерево
+TreeNode* insert(TreeNode* root, int id, int originalIndex) {
+    if (!root) {
+        return new TreeNode(id, originalIndex); // Создаем новый узел
+    }
+    if (id < root->id) {
+        root->left = insert(root->left, id, originalIndex); // Рекурсивно идем влево
+    }
+    else if (id > root->id) {
+        root->right = insert(root->right, id, originalIndex); // Рекурсивно идем вправо
+    }
+    return root; // Возвращаем корень дерева
+}
+
+// Поиск элемента в бинарном дереве по ключу
+int find(TreeNode* root, int id) {
+    if (!root) {
+        return -1; // Элемент не найден
+    }
+    if (root->id == id) {
+        return root->originalIndex; // Возвращаем индекс записи
+    }
+    if (id < root->id) {
+        return find(root->left, id); // Рекурсивно ищем в левом поддереве
+    }
+    else {
+        return find(root->right, id); // Рекурсивно ищем в правом поддереве
+    }
+}
+
 int integerInput(string msg) {
     bool isCorrect = false;
     int result;
@@ -53,7 +93,6 @@ int integerInput(string msg) {
 
     return result;
 }
-
 
 float floatInput(string msg) {
     bool isCorrect = false;
@@ -202,7 +241,6 @@ void printAllStudents(Student* students, int length) {
         printStudent(students[i], i);
     }
 }
-
 
 // Функция для преобразования строкового значения в булевое
 bool parseBool(const string& str) {
@@ -531,11 +569,49 @@ void deleteStudentById(Student* studentsPtr, IdIndex* idIndexesPtr, AgeIndex* ag
     }
 }
 
+// Обход для вывода данных
+void recursiveAscendingPrintByTree(TreeNode* node, Student* studentsPtr) {
+    if (!node) return;
+
+    recursiveAscendingPrintByTree(node->left, studentsPtr); // Рекурсивный обход левого поддерева
+    printStudent(studentsPtr[node->originalIndex], node->originalIndex);
+    recursiveAscendingPrintByTree(node->right, studentsPtr); // Рекурсивный обход правого поддерева
+}
+
+// Обход по убыванию для вывода данных
+void recursiveDescendingPrintByTree(TreeNode* node, Student* studentsPtr) {
+    if (!node) return;
+
+    recursiveDescendingPrintByTree(node->right, studentsPtr); // Рекурсивный обход правого поддерева
+    printStudent(studentsPtr[node->originalIndex], node->originalIndex); // Вывод данных
+    recursiveDescendingPrintByTree(node->left, studentsPtr); // Рекурсивный обход левого поддерева
+}
+
+// Функция поиска элемента по Id
+void searchByIdInTree(TreeNode* root, int targetId, Student* studentsPtr) {
+    if (!root) {
+        cout << "Студент с Id " << targetId << " не найден." << endl << endl;
+        return;
+    }
+
+    if (targetId == root->id) {
+        printStudent(studentsPtr[root->originalIndex], root->originalIndex);
+    }
+    else if (targetId < root->id) {
+        searchByIdInTree(root->left, targetId, studentsPtr); // Поиск в левом поддереве
+    }
+    else {
+        searchByIdInTree(root->right, targetId, studentsPtr); // Поиск в правом поддереве
+    }
+}
+
 int main()
 {
     // кодировка
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
+
+    const int maxStudents = 100; // Максимально допустимое количество студентов
 
     Student* studentsPtr = nullptr;
     int length = 0;
@@ -543,22 +619,46 @@ int main()
     IdIndex idSearchResult;
     AgeIndex ageSearchResult;
 
+    // Построение бинарного дерева индексации на основе Id
+    TreeNode* rootNode = nullptr;
+
     int answer = 0;
 
     cout << "Выберите из меню: " << endl;
-    cout << "1. Ручной ввод" << endl;
+    cout << "1. Ручной ввод с построением дерева" << endl;
     cout << "2. Ввод из файла" << endl;
     cin >> answer;
 
     switch (answer) {
         case 1:
-            length = integerInput("Введите длину массива: ");
+            /*length = integerInput("Введите длину массива: ");
 
-            studentsMainInput(&studentsPtr, length);
-            printAllStudents(studentsPtr, length);
+            studentsMainInput(&studentsPtr, length);*/
+
+            studentsPtr = new Student[maxStudents];
+            readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
+            
+            for (int i = 0; i < length; i++) {
+                rootNode = insert(rootNode, studentsPtr[i].Id, i);
+            }
+            while (answer != 0) {
+                answer = integerInput("1. Рекурсивный вывод данных по возрастанию Id\n2. Рекурсивный вывод данных по убыванию Id\n\n3. Поиск по дереву по Id\n0. Выход");
+
+                switch (answer) {
+                    case 1:
+                        recursiveAscendingPrintByTree(rootNode, studentsPtr);
+                        break;
+                    case 2:
+                        recursiveDescendingPrintByTree(rootNode, studentsPtr);
+                        break;
+                    case 3:
+                        int targetId = integerInput("Введите Id, по которому нужно найти студента: ");
+                        searchByIdInTree(rootNode, targetId, studentsPtr);
+                        break;
+                }
+            }
             break;
         case 2:
-            const int maxStudents = 100; // Максимально допустимое количество студентов
             studentsPtr = new Student[maxStudents];
             readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
 
