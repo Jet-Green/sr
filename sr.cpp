@@ -605,6 +605,64 @@ void searchByIdInTree(TreeNode* root, int targetId, Student* studentsPtr) {
     }
 }
 
+// Нахождение минимального узла в правом поддереве (для замены при удалении)
+TreeNode* findMin(TreeNode* root) {
+    while (root && root->left)
+        root = root->left;
+    return root;
+}
+
+// Функция для сдвига элементов массива влево в процессе удаления элемента
+void shiftLeft(Student* students, int index, int& length) {
+    for (int i = index; i < length - 1; ++i) {
+        students[i] = students[i + 1];
+    }
+    length--;
+}
+
+// Удаление узла из бинарного дерева
+TreeNode* deleteStudentNodeById(TreeNode* root, int targetId, Student* studentsPtr, int& length) {
+    if (!root) return nullptr;
+
+    if (targetId < root->id) {
+        root->left = deleteStudentNodeById(root->left, targetId, studentsPtr, length);
+    } else if (targetId > root->id) {
+        root->right = deleteStudentNodeById(root->right, targetId, studentsPtr, length);
+    } else {
+        // Найден узел для удаления
+        cout << "Удаление записи: Id=" << studentsPtr[root->originalIndex].Id
+             << ", Возраст=" << studentsPtr[root->originalIndex].Age << endl;
+
+        // Удаление записи из массива студентов
+        shiftLeft(studentsPtr, root->originalIndex, length);
+
+        // Случай: у узла нет потомков
+        if (!root->left && !root->right) {
+            delete root;
+            return nullptr;
+        }
+
+        // Случай: у узла только один потомок
+        if (!root->left) {
+            TreeNode* temp = root->right;
+            delete root;
+            return temp;
+        } else if (!root->right) {
+            TreeNode* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        // Случай: у узла два потомка
+        TreeNode* temp = findMin(root->right); // Минимальное значение из правого поддерева
+        root->id = temp->id;
+        root->originalIndex = temp->originalIndex;
+        root->right = deleteStudentNodeById(root->right, temp->id, studentsPtr, length);
+    }
+    return root;
+}
+
+
 int main()
 {
     // кодировка
@@ -623,6 +681,7 @@ int main()
     TreeNode* rootNode = nullptr;
 
     int answer = 0;
+    int targetId;
 
     cout << "Выберите из меню: " << endl;
     cout << "1. Ручной ввод с построением дерева" << endl;
@@ -642,7 +701,7 @@ int main()
                 rootNode = insert(rootNode, studentsPtr[i].Id, i);
             }
             while (answer != 0) {
-                answer = integerInput("1. Рекурсивный вывод данных по возрастанию Id\n2. Рекурсивный вывод данных по убыванию Id\n\n3. Поиск по дереву по Id\n0. Выход");
+                answer = integerInput("1. Рекурсивный вывод данных по возрастанию Id\n2. Рекурсивный вывод данных по убыванию Id\n\n3. Поиск по дереву по Id\n4. Удаление студента по Id\n0. Выход");
 
                 switch (answer) {
                     case 1:
@@ -652,8 +711,12 @@ int main()
                         recursiveDescendingPrintByTree(rootNode, studentsPtr);
                         break;
                     case 3:
-                        int targetId = integerInput("Введите Id, по которому нужно найти студента: ");
+                        targetId = integerInput("Введите Id, по которому нужно найти студента: ");
                         searchByIdInTree(rootNode, targetId, studentsPtr);
+                        break;
+                    case 4:
+                        targetId = integerInput("Введите Id, по которому нужно удалить студента: ");
+                        deleteStudentNodeById(rootNode, targetId, studentsPtr, length);
                         break;
                 }
             }
