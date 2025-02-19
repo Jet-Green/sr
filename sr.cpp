@@ -467,6 +467,25 @@ void editStudentById(Student* studentsPtr, IdIndex* idIndexesPtr, int length) {
     }
 }
 
+void editStudentByAge(Student* studentsPtr, AgeIndex* ageIndexesPtr, IdIndex* idIndexesPtr, int length) {
+    IdIndex searchResult;
+    bool isFound = findStudentById(studentsPtr, searchResult, idIndexesPtr, length);
+
+    if (isFound)
+    {
+        int targetAge = integerInput("Введите, на какой Age заменить: ");
+
+        studentsPtr[searchResult.OriginalIndex].Age = targetAge;
+        for (int i = 0; i < length; i++) {
+            if (ageIndexesPtr[i].OriginalIndex == searchResult.OriginalIndex)
+            {
+                ageIndexesPtr[i].Age = targetAge;
+                return;
+            }
+        }
+    }
+}
+
 int main()
 {
     // кодировка
@@ -513,7 +532,7 @@ int main()
             }
             
             while (answer != 0) {
-                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n\n9. Найти по Id и отредактировать\n10. Найти по Age и отредактировать\n0. Выход\n");
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n\n9. Найти по Id и отредактировать Id\n10. Найти по Id и отредактировать Age\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
@@ -558,6 +577,17 @@ int main()
                         }
                         editStudentById(studentsPtr, idIndexesPtr, length);
                         areIdIndexesSorted = false;
+                        break;
+                    case 10:
+                        if (!areIdIndexesSorted) {
+                            cout << "Массив, индексированный по Id, не отсортирован по возрастанию!" << endl << endl;
+                            break;
+                        }
+                        editStudentByAge(studentsPtr, ageIndexesPtr, idIndexesPtr, length);
+                        areAgeIndexesSorted = false;
+                        break;
+                    case 11:
+
                         break;
                 }
             }
