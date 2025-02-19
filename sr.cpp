@@ -486,6 +486,51 @@ void editStudentByAge(Student* studentsPtr, AgeIndex* ageIndexesPtr, IdIndex* id
     }
 }
 
+void deleteStudentById(Student* studentsPtr, IdIndex* idIndexesPtr, AgeIndex* ageIndexesPtr, int& length)
+{
+    IdIndex searchResult;
+    bool isFound = findStudentById(studentsPtr, searchResult, idIndexesPtr, length);
+
+    if (isFound)
+    {
+        // удаление из массива, индексированного по Id
+        for (int i = 0; i < length - 1; i++)
+        {
+            if (idIndexesPtr[i].Id == searchResult.Id) {
+                // сдвинуть все элементы
+                for (int j = i + 1; j < length; j++) {
+                    idIndexesPtr[j - 1] = idIndexesPtr[j];
+                }
+            }
+        }
+
+        // удаление из массива, индексированного по Age
+        for (int i = 0; i < length - 1; i++)
+        {
+            if (ageIndexesPtr[i].OriginalIndex == searchResult.OriginalIndex) {
+                // сдвинуть все элементы
+                for (int j = i + 1; j < length; j++) {
+                    ageIndexesPtr[j - 1] = ageIndexesPtr[j];
+                }
+            }
+        }
+
+        // удаление из исходного массива
+        for (int i = 0; i < length - 1; i++)
+        {
+            if (studentsPtr[i].Id == searchResult.Id) {
+                // сдвинуть все элементы
+                for (int j = i + 1; j < length; j++) {
+                    studentsPtr[j - 1] = studentsPtr[j];
+                }
+            }
+        }
+
+        cout << "Студент с Id " << searchResult.Id << " удалён!" << endl << endl;
+        length -= 1;
+    }
+}
+
 int main()
 {
     // кодировка
@@ -532,7 +577,7 @@ int main()
             }
             
             while (answer != 0) {
-                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n\n9. Найти по Id и отредактировать Id\n10. Найти по Id и отредактировать Age\n0. Выход\n");
+                answer = integerInput("\nВыберите из списка: \n1. Сортировка по возрастанию по Id\n2. Сортировка по убыванию по Id\n3. Вывести массив, индексированный по Id\n\n4. Сортировка по возрастанию по Age\n5. Сортировка по убыванию по Age\n6. Вывести массив, индексированный по Age\n\n7. Найти студена по Id (итеративный вариант)\n8. Найти студента по Age (реккурентный вариант)\n\n9. Найти по Id и отредактировать Id\n10. Найти по Id и отредактировать Age\n\n11. Удалить студента по Id\n0. Выход\n");
 
                 switch (answer) {
                     case 1:
@@ -587,7 +632,12 @@ int main()
                         areAgeIndexesSorted = false;
                         break;
                     case 11:
+                        if (!areIdIndexesSorted) {
+                            cout << "Массив, индексированный по Id, не отсортирован по возрастанию!" << endl << endl;
+                            break;
+                        }
 
+                        deleteStudentById(studentsPtr, idIndexesPtr, ageIndexesPtr, length);
                         break;
                 }
             }
