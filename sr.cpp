@@ -885,110 +885,16 @@ int main()
     int targetId;
 
     cout << "Выберите из меню: " << endl;
-    cout << "1. Ручной ввод с построением дерева" << endl;
-    cout << "2. Ввод из файла" << endl;
-    cout << "3. Линейный список" << endl;
+    cout << "1. Ручной ввод и индексирование массивов (задание №1)" << endl;
+    cout << "2. Ввод из файла с построением дерева (задание №2)" << endl;
+    cout << "3. Линейный список (задание №3)" << endl;
     cin >> answer;
 
     switch (answer) {
-        case 3:
-            studentsPtr = new Student[maxStudents];
-            readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
-
-            while (answer != 0) {
-                answer = integerInput("1. Сортировка записей по возрастанию Id и Age и включение в список\n2. Сортировка записей по убыванию Id и Age и включение в список\n\n3. Вывод по возрастанию Age и Id\n4. Вывод по убыванию Age и Id\n5. Вывод в порядке ввода\n\n6. Поиск по Id или Age\n7. Удаление одной записи по Id\n8. Удаление одной записи по Age\n0. Выход");
-                switch (answer) {
-                    case 1:
-                        for (int i = 0; i < length; i++) {
-                            InsertNodeAscending(ascendingList, studentsPtr[i].Id, studentsPtr[i].Age, i);
-                        }
-                        break;
-                    case 2:
-                        for (int i = 0; i < length; i++) {
-                            InsertNodeDescending(descendingList, studentsPtr[i].Id, studentsPtr[i].Age, i);
-                        }
-                        break;
-                    // 3. Вывод по возрастанию Age и Id
-                    case 3:
-                        printListAscending(ascendingList, studentsPtr, length);
-                        break;
-                    // 4. Вывод по убыванию Age и Id
-                    case 4:
-                        printListDescending(descendingList, studentsPtr, length);
-                        break;
-                    case 5:
-                        printAllStudents(studentsPtr, length);
-                        break;
-                    case 6:
-                        if (ascendingList != nullptr) {
-                            findByIdOrAgeInList(ascendingList, studentsPtr, length);
-                        }
-                        else if (descendingList != nullptr) {
-                            findByIdOrAgeInList(descendingList, studentsPtr, length);
-                        }
-                        else {
-                            cout << "Сначала сформируйте список!" << endl;
-                        }
-                        break;
-                    // 7. Удаление одной записи по Id
-                    case 7:
-                        if (ascendingList != nullptr) {
-                            deleteFromListById(ascendingList, studentsPtr, length);
-                        }
-                        else if (descendingList != nullptr) {
-                            deleteFromListById(descendingList, studentsPtr, length);
-                        }
-                        else {
-                            cout << "Сначала сформируйте список!" << endl;
-                        }
-                        break;
-                    // 8.Удаление одной записи по Age
-                    case 8:
-                        if (ascendingList != nullptr) {
-                            deleteFromListByAge(ascendingList, studentsPtr, length);
-                        }
-                        else if (descendingList != nullptr) {
-                            deleteFromListByAge(descendingList, studentsPtr, length);
-                        }
-                        else {
-                            cout << "Сначала сформируйте список!" << endl;
-                        }
-                        break;
-                }
-            }
-            break;
         case 1:
             length = integerInput("Введите длину массива: ");
 
             studentsMainInput(&studentsPtr, length);
-            
-            for (int i = 0; i < length; i++) {
-                rootNode = insert(rootNode, studentsPtr[i].Id, i);
-            }
-            while (answer != 0) {
-                answer = integerInput("1. Рекурсивный вывод данных по возрастанию Id\n2. Рекурсивный вывод данных по убыванию Id\n\n3. Поиск по дереву по Id\n4. Удаление студента по Id\n0. Выход");
-
-                switch (answer) {
-                    case 1:
-                        recursiveAscendingPrintByTree(rootNode, studentsPtr);
-                        break;
-                    case 2:
-                        recursiveDescendingPrintByTree(rootNode, studentsPtr);
-                        break;
-                    case 3:
-                        targetId = integerInput("Введите Id, по которому нужно найти студента: ");
-                        searchByIdInTree(rootNode, targetId, studentsPtr);
-                        break;
-                    case 4:
-                        targetId = integerInput("Введите Id, по которому нужно удалить студента: ");
-                        deleteStudentNodeById(rootNode, targetId, studentsPtr, length);
-                        break;
-                }
-            }
-            break;
-        case 2:
-            studentsPtr = new Student[maxStudents];
-            readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
 
             IdIndex* idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать по Id
             bool areIdIndexesSorted = false;
@@ -1067,6 +973,100 @@ int main()
 
                         deleteStudentById(studentsPtr, idIndexesPtr, ageIndexesPtr, length);
                         break;
+                }
+            }
+            break;
+        case 2:
+            studentsPtr = new Student[maxStudents];
+            readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
+
+            for (int i = 0; i < length; i++) {
+                rootNode = insert(rootNode, studentsPtr[i].Id, i);
+            }
+            while (answer != 0) {
+                answer = integerInput("1. Рекурсивный вывод данных по возрастанию Id\n2. Рекурсивный вывод данных по убыванию Id\n\n3. Поиск по дереву по Id\n4. Удаление студента по Id\n0. Выход");
+
+                switch (answer) {
+                case 1:
+                    recursiveAscendingPrintByTree(rootNode, studentsPtr);
+                    break;
+                case 2:
+                    recursiveDescendingPrintByTree(rootNode, studentsPtr);
+                    break;
+                case 3:
+                    targetId = integerInput("Введите Id, по которому нужно найти студента: ");
+                    searchByIdInTree(rootNode, targetId, studentsPtr);
+                    break;
+                case 4:
+                    targetId = integerInput("Введите Id, по которому нужно удалить студента: ");
+                    deleteStudentNodeById(rootNode, targetId, studentsPtr, length);
+                    break;
+                }
+            }
+            break;
+        case 3:
+            studentsPtr = new Student[maxStudents];
+            readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
+
+            while (answer != 0) {
+                answer = integerInput("1. Сортировка записей по возрастанию Id и Age и включение в список\n2. Сортировка записей по убыванию Id и Age и включение в список\n\n3. Вывод по возрастанию Age и Id\n4. Вывод по убыванию Age и Id\n5. Вывод в порядке ввода\n\n6. Поиск по Id или Age\n7. Удаление одной записи по Id\n8. Удаление одной записи по Age\n0. Выход");
+                switch (answer) {
+                case 1:
+                    for (int i = 0; i < length; i++) {
+                        InsertNodeAscending(ascendingList, studentsPtr[i].Id, studentsPtr[i].Age, i);
+                    }
+                    break;
+                case 2:
+                    for (int i = 0; i < length; i++) {
+                        InsertNodeDescending(descendingList, studentsPtr[i].Id, studentsPtr[i].Age, i);
+                    }
+                    break;
+                    // 3. Вывод по возрастанию Age и Id
+                case 3:
+                    printListAscending(ascendingList, studentsPtr, length);
+                    break;
+                    // 4. Вывод по убыванию Age и Id
+                case 4:
+                    printListDescending(descendingList, studentsPtr, length);
+                    break;
+                case 5:
+                    printAllStudents(studentsPtr, length);
+                    break;
+                case 6:
+                    if (ascendingList != nullptr) {
+                        findByIdOrAgeInList(ascendingList, studentsPtr, length);
+                    }
+                    else if (descendingList != nullptr) {
+                        findByIdOrAgeInList(descendingList, studentsPtr, length);
+                    }
+                    else {
+                        cout << "Сначала сформируйте список!" << endl;
+                    }
+                    break;
+                    // 7. Удаление одной записи по Id
+                case 7:
+                    if (ascendingList != nullptr) {
+                        deleteFromListById(ascendingList, studentsPtr, length);
+                    }
+                    else if (descendingList != nullptr) {
+                        deleteFromListById(descendingList, studentsPtr, length);
+                    }
+                    else {
+                        cout << "Сначала сформируйте список!" << endl;
+                    }
+                    break;
+                    // 8.Удаление одной записи по Age
+                case 8:
+                    if (ascendingList != nullptr) {
+                        deleteFromListByAge(ascendingList, studentsPtr, length);
+                    }
+                    else if (descendingList != nullptr) {
+                        deleteFromListByAge(descendingList, studentsPtr, length);
+                    }
+                    else {
+                        cout << "Сначала сформируйте список!" << endl;
+                    }
+                    break;
                 }
             }
             break;
