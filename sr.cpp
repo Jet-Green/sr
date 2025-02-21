@@ -875,11 +875,16 @@ int main()
 
     IdIndex idSearchResult;
     AgeIndex ageSearchResult;
+    AgeIndex* ageIndexesPtr;
+    IdIndex* idIndexesPtr;
 
     TreeNode* rootNode = nullptr;
 
     ListNode* ascendingList = nullptr;  // Список для вставки по возрастанию
     ListNode* descendingList = nullptr; // Список для вставки по убыванию
+    
+    bool areAgeIndexesSorted = false;
+    bool areIdIndexesSorted = false;
 
     int answer = 0;
     int targetId;
@@ -896,15 +901,14 @@ int main()
 
             studentsMainInput(&studentsPtr, length);
 
-            IdIndex* idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать по Id
-            bool areIdIndexesSorted = false;
+            idIndexesPtr = new IdIndex[length]; // индексы, которые мы будем сортировать по Id
             for (int i = 0; i < length; i++) {
                 idIndexesPtr[i].OriginalIndex = i;
                 idIndexesPtr[i].Id = studentsPtr[i].Id;
             }
 
-            AgeIndex* ageIndexesPtr = new AgeIndex[length]; // индексы, которые мы будем сортировать по Age
-            bool areAgeIndexesSorted = false;
+            ageIndexesPtr = new AgeIndex[length]; // индексы, которые мы будем сортировать по Age
+            
             for (int i = 0; i < length; i++) {
                 ageIndexesPtr[i].OriginalIndex = i;
                 ageIndexesPtr[i].Age = studentsPtr[i].Age;
