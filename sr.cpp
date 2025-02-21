@@ -35,13 +35,83 @@ struct AgeIndex {
 
 // Узел бинарного дерева для индексации по Id
 struct TreeNode {
-    int id;               // Ключевой атрибут (Id)
-    int originalIndex;    // Индекс записи в массиве
-    TreeNode* left;       // Указатель на левого потомка
-    TreeNode* right;      // Указатель на правого потомка
+    int id; // Ключевой атрибут (Id)
+    int originalIndex; // Индекс записи в изначальном массиве
+    TreeNode* left; // Указатель на левого потомка
+    TreeNode* right; // Указатель на правого потомка
 
     TreeNode(int k, int i) : id(k), originalIndex(i), left(nullptr), right(nullptr) {}
 };
+
+// Структура для представления узла в связном списке студентов
+struct ListNode {
+    int id; // Id студента
+    int age; // Age студента
+    int originalIndex; // Индекс студента в оригинальном массиве
+    ListNode* next; // Указатель на следующий узел
+
+    // Конструктор узла
+    ListNode(int originalId, int originalAge, int index)
+        : id(originalId), age(originalAge), originalIndex(index), next(nullptr) {}
+};
+
+// Вставка узла в начало списка
+void InsertAtHead(ListNode*& head, ListNode* newNode) {
+    newNode->next = head;
+    head = newNode;
+}
+
+// Вставка узла в середину списка
+void InsertAfter(ListNode* current, ListNode* newNode) {
+    newNode->next = current->next;
+    current->next = newNode;
+}
+
+// Вставка в список по возрастанию
+void InsertNodeAscending(ListNode*& head, int originalId, int originalAge, int index) {
+    ListNode* newNode = new ListNode(originalId, originalAge, index);
+
+    // Если список пуст или новый узел должен быть размещен перед первым элементом
+    if (head == nullptr || head->age > newNode->age ||
+        (head->age == newNode->age && head->id > newNode->id)) {
+        InsertAtHead(head, newNode);
+        return;
+    }
+
+    // Поиск подходящей позиции для вставки
+    ListNode* current = head;
+    while (current->next != nullptr &&
+        (current->next->age < newNode->age ||
+            (current->next->age == newNode->age && current->next->id < newNode->id))) {
+        current = current->next;
+    }
+
+    // Вставка нового узла
+    InsertAfter(current, newNode);
+}
+
+// Вставка в список по убыванию
+void InsertNodeDescending(ListNode*& head, int a1, int a2, int index) {
+    ListNode* newNode = new ListNode(a1, a2, index);
+
+    // Если список пуст или новый узел должен быть размещен перед первым элементом
+    if (head == nullptr || head->age < newNode->age ||
+        (head->age == newNode->age && head->id < newNode->id)) {
+        InsertAtHead(head, newNode);
+        return;
+    }
+
+    // Поиск подходящей позиции для вставки
+    ListNode* current = head;
+    while (current->next != nullptr &&
+        (current->next->age > newNode->age ||
+            (current->next->age == newNode->age && current->next->id > newNode->id))) {
+        current = current->next;
+    }
+
+    // Вставка нового узла
+    InsertAfter(current, newNode);
+}
 
 // Добавление узла в бинарное дерево
 TreeNode* insert(TreeNode* root, int id, int originalIndex) {
@@ -663,6 +733,135 @@ TreeNode* deleteStudentNodeById(TreeNode* root, int targetId, Student* studentsP
 }
 
 
+void printListAscending(ListNode* currentListHead, Student* studentsPtr, int length) {
+    if (currentListHead == nullptr) {
+        cout << "Сначала сформуируйте список, отсортированный по возрастанию" << endl;
+    }
+
+    while (currentListHead != nullptr) {
+        printStudent(studentsPtr[currentListHead->originalIndex], currentListHead->originalIndex);
+        currentListHead = currentListHead->next;
+    }
+}
+
+void printListDescending(ListNode* currentListHead, Student* studentsPtr, int length) {
+    if (currentListHead == nullptr) {
+        cout << "Сначала сформуируйте список, отсортированный по убыванию" << endl;
+        return;
+    }
+
+    while (currentListHead != nullptr) {
+        printStudent(studentsPtr[currentListHead->originalIndex], currentListHead->originalIndex);
+        currentListHead = currentListHead->next;
+    }
+}
+
+void findByIdOrAgeInList(ListNode* currentListHead, Student* studentsPtr, int length) {
+    int targetId = integerInput("Введите Id, по которому нужно найти записи: ");
+    int targetAge = integerInput("Введите Age, по которому нужно найти записи: ");
+
+    while (currentListHead != nullptr) {
+        if (currentListHead->id == targetId || currentListHead->age == targetAge) {
+            printStudent(studentsPtr[currentListHead->originalIndex], currentListHead->originalIndex);
+        }
+        currentListHead = currentListHead->next;
+    }
+}
+
+void deleteFromListById(ListNode*& head, Student* studentsPtr, int length) {
+    if (head == nullptr) {
+        cout << "Сначала сформируйте список!" << endl;
+        return;
+    }
+
+    int targetId = integerInput("Введите Id, по которому нужно удалить запись: ");
+
+    // Если узел, который нужно удалить, является первым
+    if (studentsPtr[head->originalIndex].Id == targetId) {
+        ListNode* temp = head;
+        head = head->next;
+
+        for (int i = temp->originalIndex; i < length - 1; i++) {
+            studentsPtr[i] = studentsPtr[i + 1];
+        }
+        
+        delete temp;
+        cout << "Студент с Id " << targetId << " удалён" << endl;
+        return;
+    }
+
+    ListNode* current = head;
+    ListNode* previous = nullptr;
+
+    // Поиск нужного узла
+    while (current != nullptr && studentsPtr[current->originalIndex].Id != targetId) {
+        previous = current;
+        current = current->next;
+    }
+
+    // Если узел не найден
+    if (current == nullptr) {
+        cout << "Студент с Id " << targetId << " не найден" << endl;
+        return;
+    }
+    
+    for (int i = current->originalIndex; i < length - 1; i++) {
+        studentsPtr[i] = studentsPtr[i + 1];
+    }
+
+    // Удаление найденного узла
+    previous->next = current->next;
+    delete current;
+    cout << "Студент с Id " << targetId << " удалён" << endl;
+}
+
+void deleteFromListByAge(ListNode*& head, Student* studentsPtr, int length) {
+    if (head == nullptr) {
+        cout << "Сначала сформируйте список!" << endl;
+        return;
+    }
+
+    int targetAge = integerInput("Введите Age, по которому нужно удалить запись: ");
+
+    // Если узел, который нужно удалить, является первым
+    if (studentsPtr[head->originalIndex].Age == targetAge) {
+        ListNode* temp = head;
+        head = head->next;
+
+        for (int i = temp->originalIndex; i < length - 1; i++) {
+            studentsPtr[i] = studentsPtr[i + 1];
+        }
+
+        delete temp;
+        cout << "Студент с Age " << targetAge << " удалён" << endl;
+        return;
+    }
+
+    ListNode* current = head;
+    ListNode* previous = nullptr;
+
+    // Поиск нужного узла
+    while (current != nullptr && studentsPtr[current->originalIndex].Age != targetAge) {
+        previous = current;
+        current = current->next;
+    }
+
+    // Если узел не найден
+    if (current == nullptr) {
+        cout << "Студент с Age " << targetAge << " не найден" << endl;
+        return;
+    }
+
+    for (int i = current->originalIndex; i < length - 1; i++) {
+        studentsPtr[i] = studentsPtr[i + 1];
+    }
+
+    // Удаление найденного узла
+    previous->next = current->next;
+    delete current;
+    cout << "Студент с Age " << targetAge << " удалён" << endl;
+}
+
 int main()
 {
     // кодировка
@@ -677,8 +876,10 @@ int main()
     IdIndex idSearchResult;
     AgeIndex ageSearchResult;
 
-    // Построение бинарного дерева индексации на основе Id
     TreeNode* rootNode = nullptr;
+
+    ListNode* ascendingList = nullptr;  // Список для вставки по возрастанию
+    ListNode* descendingList = nullptr; // Список для вставки по убыванию
 
     int answer = 0;
     int targetId;
@@ -686,16 +887,80 @@ int main()
     cout << "Выберите из меню: " << endl;
     cout << "1. Ручной ввод с построением дерева" << endl;
     cout << "2. Ввод из файла" << endl;
+    cout << "3. Линейный список" << endl;
     cin >> answer;
 
     switch (answer) {
-        case 1:
-            /*length = integerInput("Введите длину массива: ");
-
-            studentsMainInput(&studentsPtr, length);*/
-
+        case 3:
             studentsPtr = new Student[maxStudents];
             readStudentsFromFile("РИС-24-10 Дзюин ГВ (СР данные).csv", &studentsPtr, length);
+
+            while (answer != 0) {
+                answer = integerInput("1. Сортировка записей по возрастанию Id и Age и включение в список\n2. Сортировка записей по убыванию Id и Age и включение в список\n\n3. Вывод по возрастанию Age и Id\n4. Вывод по убыванию Age и Id\n5. Вывод в порядке ввода\n\n6. Поиск по Id или Age\n7. Удаление одной записи по Id\n8. Удаление одной записи по Age\n0. Выход");
+                switch (answer) {
+                    case 1:
+                        for (int i = 0; i < length; i++) {
+                            InsertNodeAscending(ascendingList, studentsPtr[i].Id, studentsPtr[i].Age, i);
+                        }
+                        break;
+                    case 2:
+                        for (int i = 0; i < length; i++) {
+                            InsertNodeDescending(descendingList, studentsPtr[i].Id, studentsPtr[i].Age, i);
+                        }
+                        break;
+                    // 3. Вывод по возрастанию Age и Id
+                    case 3:
+                        printListAscending(ascendingList, studentsPtr, length);
+                        break;
+                    // 4. Вывод по убыванию Age и Id
+                    case 4:
+                        printListDescending(descendingList, studentsPtr, length);
+                        break;
+                    case 5:
+                        printAllStudents(studentsPtr, length);
+                        break;
+                    case 6:
+                        if (ascendingList != nullptr) {
+                            findByIdOrAgeInList(ascendingList, studentsPtr, length);
+                        }
+                        else if (descendingList != nullptr) {
+                            findByIdOrAgeInList(descendingList, studentsPtr, length);
+                        }
+                        else {
+                            cout << "Сначала сформируйте список!" << endl;
+                        }
+                        break;
+                    // 7. Удаление одной записи по Id
+                    case 7:
+                        if (ascendingList != nullptr) {
+                            deleteFromListById(ascendingList, studentsPtr, length);
+                        }
+                        else if (descendingList != nullptr) {
+                            deleteFromListById(descendingList, studentsPtr, length);
+                        }
+                        else {
+                            cout << "Сначала сформируйте список!" << endl;
+                        }
+                        break;
+                    // 8.Удаление одной записи по Age
+                    case 8:
+                        if (ascendingList != nullptr) {
+                            deleteFromListByAge(ascendingList, studentsPtr, length);
+                        }
+                        else if (descendingList != nullptr) {
+                            deleteFromListByAge(descendingList, studentsPtr, length);
+                        }
+                        else {
+                            cout << "Сначала сформируйте список!" << endl;
+                        }
+                        break;
+                }
+            }
+            break;
+        case 1:
+            length = integerInput("Введите длину массива: ");
+
+            studentsMainInput(&studentsPtr, length);
             
             for (int i = 0; i < length; i++) {
                 rootNode = insert(rootNode, studentsPtr[i].Id, i);
