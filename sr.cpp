@@ -735,7 +735,7 @@ TreeNode* deleteStudentNodeById(TreeNode* root, int targetId, Student* studentsP
 
 void printListAscending(ListNode* currentListHead, Student* studentsPtr, int length) {
     if (currentListHead == nullptr) {
-        cout << "Сначала сформуируйте список, отсортированный по возрастанию" << endl;
+        cout << "Сначала сформируйте список, отсортированный по возрастанию" << endl;
     }
 
     while (currentListHead != nullptr) {
@@ -746,7 +746,7 @@ void printListAscending(ListNode* currentListHead, Student* studentsPtr, int len
 
 void printListDescending(ListNode* currentListHead, Student* studentsPtr, int length) {
     if (currentListHead == nullptr) {
-        cout << "Сначала сформуируйте список, отсортированный по убыванию" << endl;
+        cout << "Сначала сформируйте список, отсортированный по убыванию" << endl;
         return;
     }
 
